@@ -1,0 +1,7 @@
+# Configuração do Netlify para o site Estoque Calendário.
+#
+# O site vive na subpasta "vendas_garmin_calendary" deste repositório, não na
+# raiz. Sem este arquivo, o Netlify procura o index.html na raiz do repositório,
+# não encontra e a implantação não gera um link funcional para o site.
+[build]
+  publish = "vendas_garmin_calendary"
