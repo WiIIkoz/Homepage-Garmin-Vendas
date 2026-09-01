@@ -811,8 +811,13 @@ a {
   background: var(--color-danger);
   color: #fff;
 }
-.btn-danger:hover { background: #c93c40; }
-html[data-theme="dark"] .btn-danger:hover { background: #ff8585; }
+.btn-danger:hover:not(:disabled) { background: #c93c40; }
+html[data-theme="dark"] .btn-danger:hover:not(:disabled) { background: #ff8585; }
+.btn-danger:disabled {
+  background: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
 
 .settings-row {
   display: flex;

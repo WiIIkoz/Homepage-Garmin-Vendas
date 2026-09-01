@@ -199,23 +199,37 @@
   });
 
   // ---------- Delete confirmation modal ----------
+  var CONFIRM_WORD = "CONFIRMO";
   var confirmModalOverlay = document.getElementById("confirmModalOverlay");
   var confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
   var confirmCancelBtn = document.getElementById("confirmCancelBtn");
   var confirmModalClose = document.getElementById("confirmModalClose");
+  var confirmTypeField = document.getElementById("confirmTypeField");
   var pendingDeleteAction = null;
+
+  function updateConfirmDeleteState() {
+    confirmDeleteBtn.disabled = confirmTypeField.value.trim().toUpperCase() !== CONFIRM_WORD;
+  }
+
+  confirmTypeField.addEventListener("input", updateConfirmDeleteState);
 
   function openConfirmModal(onConfirm) {
     pendingDeleteAction = onConfirm;
+    confirmTypeField.value = "";
+    updateConfirmDeleteState();
     confirmModalOverlay.classList.add("open");
+    confirmTypeField.focus();
   }
 
   function closeConfirmModal() {
     confirmModalOverlay.classList.remove("open");
     pendingDeleteAction = null;
+    confirmTypeField.value = "";
+    updateConfirmDeleteState();
   }
 
   confirmDeleteBtn.addEventListener("click", function () {
+    if (confirmDeleteBtn.disabled) return;
     var action = pendingDeleteAction;
     closeConfirmModal();
     if (action) action();

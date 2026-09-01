@@ -115,9 +115,13 @@
     </div>
     <div class="modal-body">
       <p class="confirm-text">Tem certeza que deseja excluir este produto do banco de dados? Essa ação não pode ser desfeita.</p>
+      <div class="field" style="margin-bottom:16px;">
+        <label for="confirmTypeField">Digite <strong>CONFIRMO</strong> para excluir</label>
+        <input type="text" id="confirmTypeField" autocomplete="off" placeholder="CONFIRMO">
+      </div>
       <div class="confirm-actions">
         <button class="btn btn-outline" id="confirmCancelBtn" type="button">Cancelar</button>
-        <button class="btn btn-danger" id="confirmDeleteBtn" type="button">Excluir</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn" type="button" disabled>Excluir</button>
       </div>
     </div>
   </div>
