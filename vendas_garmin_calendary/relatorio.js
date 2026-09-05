@@ -101,8 +101,8 @@
 
   // ---------- Elements ----------
   var monthTitleEl = document.getElementById("monthTitle");
-  var totalMesEl = document.getElementById("totalMes");
-  var totalMesCaptionEl = document.getElementById("totalMesCaption");
+  var totalHojeEl = document.getElementById("totalHoje");
+  var totalHojeCaptionEl = document.getElementById("totalHojeCaption");
   var flexCardLabelEl = document.getElementById("flexCardLabel");
   var totalSemanaEl = document.getElementById("totalSemana");
   var totalSemanaCaptionEl = document.getElementById("totalSemanaCaption");
@@ -161,10 +161,11 @@
   function render() {
     monthTitleEl.textContent = MONTH_NAMES[state.viewMonth] + " de " + state.viewYear;
 
-    var monthStart = new Date(state.viewYear, state.viewMonth, 1, 0, 0, 0, 0);
-    var monthEnd = new Date(state.viewYear, state.viewMonth + 1, 0, 23, 59, 59, 999);
-    totalMesEl.textContent = formatCurrency(sumForRange(monthStart, monthEnd));
-    totalMesCaptionEl.textContent = MONTH_NAMES[state.viewMonth] + " de " + state.viewYear;
+    // "Hoje" é sempre o dia real do relógio do computador, independente do
+    // mês selecionado no filtro acima (que agora só afeta o total do semestre).
+    var today = new Date();
+    totalHojeEl.textContent = formatCurrency(sumForRange(startOfDay(today), endOfDay(today)));
+    totalHojeCaptionEl.textContent = formatShortDate(today);
 
     var filterInfo = getActiveFilterInfo();
     flexCardLabelEl.textContent = filterInfo.title;
