@@ -104,6 +104,7 @@
       barcode: produto.barcode,
       sku: produto.sku,
       descricao: produto.descricao,
+      valor: produto.valor,
       foto: produto.foto,
       origem: produto.origem || "manual"
     }).select().single();

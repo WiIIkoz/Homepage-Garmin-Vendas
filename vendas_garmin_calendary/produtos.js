@@ -51,9 +51,14 @@
         thumbWrap.innerHTML = "<span class=\"produto-thumb-fallback\">Sem foto</span>";
       }
 
+      // Prioriza o valor já cadastrado no produto (preenchido automaticamente
+      // ao adicionar pelo SKU); só recorre à busca ao vivo na Garmin para
+      // itens antigos do catálogo que ainda não têm valor salvo.
       var garminInfo = GarminPrecos.getPreco(produto.sku);
       var precoHtml;
-      if (garminInfo) {
+      if (produto.valor) {
+        precoHtml = "<span class=\"produto-preco\">Valor: " + formatCurrency(produto.valor) + "</span>";
+      } else if (garminInfo) {
         precoHtml = "<a class=\"produto-preco\" href=\"" + escapeHtml(GarminPrecos.productUrl(garminInfo.handle)) +
           "\" target=\"_blank\" rel=\"noopener noreferrer\">Preço Garmin: " + formatCurrency(garminInfo.preco) + "</a>";
       } else {
@@ -114,15 +119,46 @@
   var fieldBarcode = document.getElementById("fieldBarcode");
   var fieldProdutoSku = document.getElementById("fieldProdutoSku");
   var fieldProdutoDescricao = document.getElementById("fieldProdutoDescricao");
+  var fieldProdutoValor = document.getElementById("fieldProdutoValor");
+  var produtoValorHint = document.getElementById("produtoValorHint");
   var fieldProdutoFoto = document.getElementById("fieldProdutoFoto");
   var photoPreviewEl = document.getElementById("photoPreview");
 
   var selectedPhotoDataUrl = null;
 
+  function parseValorBR(str) {
+    var normalized = String(str || "").replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
+    var n = parseFloat(normalized);
+    return isNaN(n) ? null : n;
+  }
+
+  function formatValorBR(n) {
+    return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // Ao digitar um SKU que existe no catálogo da Garmin Brasil, preenche
+  // descrição e valor automaticamente (o usuário ainda pode editar depois).
+  fieldProdutoSku.addEventListener("input", function () {
+    var garminInfo = GarminPrecos.getPreco(fieldProdutoSku.value.trim());
+    if (garminInfo) {
+      fieldProdutoDescricao.value = garminInfo.titulo;
+      fieldProdutoValor.value = formatValorBR(garminInfo.preco);
+      produtoValorHint.textContent = "Preenchido automaticamente com o valor da Garmin Brasil.";
+      produtoValorHint.classList.add("field-hint-success");
+    } else {
+      produtoValorHint.textContent = "";
+      produtoValorHint.classList.remove("field-hint-success");
+    }
+    updateProdutoSaveState();
+  });
+
   function clearProdutoForm() {
     fieldBarcode.value = "";
     fieldProdutoSku.value = "";
     fieldProdutoDescricao.value = "";
+    fieldProdutoValor.value = "";
+    produtoValorHint.textContent = "";
+    produtoValorHint.classList.remove("field-hint-success");
     fieldProdutoFoto.value = "";
     selectedPhotoDataUrl = null;
     photoPreviewEl.innerHTML =
@@ -134,6 +170,7 @@
     var allFilled = fieldBarcode.value.trim().length > 0 &&
       fieldProdutoSku.value.trim().length > 0 &&
       fieldProdutoDescricao.value.trim().length > 0 &&
+      parseValorBR(fieldProdutoValor.value) > 0 &&
       !!selectedPhotoDataUrl;
     saveProdutoBtn.disabled = !allFilled;
     produtoFormHint.textContent = allFilled
@@ -141,7 +178,7 @@
       : "Preencha todos os campos para poder salvar o item.";
   }
 
-  [fieldBarcode, fieldProdutoSku, fieldProdutoDescricao].forEach(function (f) {
+  [fieldBarcode, fieldProdutoDescricao, fieldProdutoValor].forEach(function (f) {
     f.addEventListener("input", updateProdutoSaveState);
   });
 
@@ -188,14 +225,16 @@
     var barcode = fieldBarcode.value.trim();
     var sku = fieldProdutoSku.value.trim();
     var descricao = fieldProdutoDescricao.value.trim();
+    var valor = parseValorBR(fieldProdutoValor.value);
 
-    if (!barcode || !sku || !descricao || !selectedPhotoDataUrl) return;
+    if (!barcode || !sku || !descricao || !(valor > 0) || !selectedPhotoDataUrl) return;
 
     saveProdutoBtn.disabled = true;
     var inserted = await DB.addProduto({
       barcode: barcode,
       sku: sku,
       descricao: descricao,
+      valor: valor,
       foto: selectedPhotoDataUrl,
       origem: "manual"
     });

@@ -14,6 +14,7 @@ create table if not exists produtos (
   barcode text,
   sku text not null,
   descricao text not null,
+  valor numeric,
   foto text,
   origem text default 'manual',
   created_at timestamptz not null default now()
@@ -541,3 +542,10 @@ insert into produtos (barcode, sku, descricao, foto, origem) values
 ('753759229436', 'M00-10753-00', 'Suporte p/ GPS  Portátil Pequeno de Acrílico', NULL, 'garmin-catalogo'),
 ('753759257965', '010-12907-00', 'Pulseira Garmin Pulseira de Mergulho grande Preto', NULL, 'garmin-catalogo'),
 ('753759264338', '010-13028-00', 'Pulseira Garmin Pulseira de Mergulho pequena Preto', NULL, 'garmin-catalogo');
+
+-- ---------------------------------------------------------------------
+-- MIGRAÇÃO: adiciona a coluna "valor" (preço) à tabela produtos.
+-- Rode SÓ este bloco no SQL Editor do Supabase se o banco já existir —
+-- não rode o arquivo inteiro de novo, isso duplicaria o catálogo acima.
+-- ---------------------------------------------------------------------
+alter table produtos add column if not exists valor numeric;
