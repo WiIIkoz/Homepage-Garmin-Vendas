@@ -343,6 +343,7 @@ a {
 
 .calendar-toolbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 14px;
   margin-bottom: 18px;
@@ -1091,10 +1092,42 @@ html[data-theme="dark"] .btn-danger:hover:not(:disabled) { background: #ff8585; 
   color: var(--color-text-muted);
 }
 
+.report-card-meta {
+  display: block;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--color-border);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
 /* ---------- REPORT FILTER MENU ---------- */
+.report-toolbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.meta-input {
+  width: 150px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-size: 13.5px;
+  font-family: inherit;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.meta-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
 .filter-menu {
   position: relative;
-  margin-left: auto;
 }
 
 .filter-btn-icon {

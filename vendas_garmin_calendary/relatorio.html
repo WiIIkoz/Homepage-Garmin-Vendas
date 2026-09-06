@@ -55,20 +55,23 @@
       <button class="nav-btn" id="prevMonth" type="button" aria-label="Mês anterior">&#10094;</button>
       <h1 class="month-title" id="monthTitle"></h1>
       <button class="nav-btn" id="nextMonth" type="button" aria-label="Próximo mês">&#10095;</button>
-      <div class="filter-menu">
-        <button class="btn btn-today" id="filterBtn" type="button" aria-haspopup="true" aria-expanded="false">
-          Filtro
-          <svg class="filter-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-        </button>
-        <div class="filter-popover" id="filterPopover">
-          <button class="filter-option" type="button" id="filterHoje">Hoje</button>
-          <button class="filter-option" type="button" id="filterOntem">Ontem</button>
-          <button class="filter-option" type="button" id="filterSemana">Essa semana</button>
-          <button class="filter-option" type="button" id="filterCustom">Escolher data</button>
+      <div class="report-toolbar-right">
+        <input type="text" class="meta-input" id="metaInput" inputmode="decimal" placeholder="Meta do mês (R$)" title="Digite a meta de vendas do mês e aperte Enter para salvar">
+        <div class="filter-menu">
+          <button class="btn btn-today" id="filterBtn" type="button" aria-haspopup="true" aria-expanded="false">
+            Filtro
+            <svg class="filter-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="filter-popover" id="filterPopover">
+            <button class="filter-option" type="button" id="filterHoje">Hoje</button>
+            <button class="filter-option" type="button" id="filterOntem">Ontem</button>
+            <button class="filter-option" type="button" id="filterSemana">Essa semana</button>
+            <button class="filter-option" type="button" id="filterCustom">Escolher data</button>
+          </div>
         </div>
       </div>
     </div>
-    <p class="report-filter-hint">Selecione o mês para atualizar o total do semestre abaixo.</p>
+    <p class="report-filter-hint">Selecione o mês para atualizar o total do mês e a meta abaixo. Digite uma meta (R$) e aperte Enter para salvá-la.</p>
   </section>
 
   <section class="report-grid">
@@ -79,21 +82,22 @@
     </div>
 
     <div class="report-card">
-      <span class="report-card-label" id="flexCardLabel">Essa semana</span>
-      <span class="report-card-value" id="totalSemana">R$ 0,00</span>
-      <span class="report-card-caption" id="totalSemanaCaption"></span>
+      <span class="report-card-label">Ontem</span>
+      <span class="report-card-value" id="totalOntem">R$ 0,00</span>
+      <span class="report-card-caption" id="totalOntemCaption"></span>
     </div>
 
     <div class="report-card">
-      <span class="report-card-label">Total do semestre</span>
-      <span class="report-card-value" id="totalSemestre">R$ 0,00</span>
-      <span class="report-card-caption" id="totalSemestreCaption"></span>
+      <span class="report-card-label">Total do mês</span>
+      <span class="report-card-value" id="totalMes">R$ 0,00</span>
+      <span class="report-card-caption" id="totalMesCaption"></span>
+      <span class="report-card-meta" id="metaProgress"></span>
     </div>
 
-    <div class="report-card report-card-highlight">
-      <span class="report-card-label">Total geral</span>
-      <span class="report-card-value" id="totalGeral">R$ 0,00</span>
-      <span class="report-card-caption">Somatória de todos os anos de uso do sistema</span>
+    <div class="report-card">
+      <span class="report-card-label" id="flexCardLabel">Período personalizado</span>
+      <span class="report-card-value" id="totalPersonalizado">R$ 0,00</span>
+      <span class="report-card-caption" id="totalPersonalizadoCaption"></span>
     </div>
   </section>
 

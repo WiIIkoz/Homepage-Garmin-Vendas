@@ -48,16 +48,6 @@
     return total;
   }
 
-  function sumAll() {
-    var total = 0;
-    Object.keys(data).forEach(function (key) {
-      (data[key] || []).forEach(function (item) {
-        total += parseValor(item.valor);
-      });
-    });
-    return total;
-  }
-
   function startOfWeek(d) {
     var r = new Date(d);
     r.setHours(0, 0, 0, 0);
@@ -103,12 +93,80 @@
   var monthTitleEl = document.getElementById("monthTitle");
   var totalHojeEl = document.getElementById("totalHoje");
   var totalHojeCaptionEl = document.getElementById("totalHojeCaption");
+  var totalOntemEl = document.getElementById("totalOntem");
+  var totalOntemCaptionEl = document.getElementById("totalOntemCaption");
+  var totalMesEl = document.getElementById("totalMes");
+  var totalMesCaptionEl = document.getElementById("totalMesCaption");
+  var metaProgressEl = document.getElementById("metaProgress");
+  var metaInputEl = document.getElementById("metaInput");
   var flexCardLabelEl = document.getElementById("flexCardLabel");
-  var totalSemanaEl = document.getElementById("totalSemana");
-  var totalSemanaCaptionEl = document.getElementById("totalSemanaCaption");
-  var totalSemestreEl = document.getElementById("totalSemestre");
-  var totalSemestreCaptionEl = document.getElementById("totalSemestreCaption");
-  var totalGeralEl = document.getElementById("totalGeral");
+  var totalPersonalizadoEl = document.getElementById("totalPersonalizado");
+  var totalPersonalizadoCaptionEl = document.getElementById("totalPersonalizadoCaption");
+
+  // ---------- Meta de vendas do mês ----------
+  var METAS_STORAGE_KEY = "estoqueCalendarioMetas";
+
+  function metaKeyFor(year, month) {
+    return year + "-" + String(month + 1).padStart(2, "0");
+  }
+
+  function loadMetas() {
+    try {
+      var raw = localStorage.getItem(METAS_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveMetas(metas) {
+    try {
+      localStorage.setItem(METAS_STORAGE_KEY, JSON.stringify(metas));
+    } catch (e) {
+      console.error("Falha ao salvar meta:", e);
+    }
+  }
+
+  function parseMetaValue(str) {
+    var normalized = String(str || "").replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
+    var n = parseFloat(normalized);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function updateMetaInputForCurrentMonth() {
+    var metas = loadMetas();
+    var meta = metas[metaKeyFor(state.viewYear, state.viewMonth)];
+    metaInputEl.value = meta ? String(meta) : "";
+  }
+
+  function renderMetaProgress(totalMesValor) {
+    var metas = loadMetas();
+    var meta = metas[metaKeyFor(state.viewYear, state.viewMonth)];
+    if (!meta || meta <= 0) {
+      metaProgressEl.textContent = "Defina uma meta ao lado do filtro para ver o progresso.";
+      return;
+    }
+    var pct = Math.round((totalMesValor / meta) * 100);
+    metaProgressEl.textContent = pct + "% da meta de " + formatCurrency(meta);
+  }
+
+  metaInputEl.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    var raw = metaInputEl.value.trim();
+    var metas = loadMetas();
+    var key = metaKeyFor(state.viewYear, state.viewMonth);
+    if (!raw) {
+      delete metas[key];
+    } else {
+      var parsed = parseMetaValue(raw);
+      if (parsed > 0) metas[key] = parsed;
+    }
+    saveMetas(metas);
+    updateMetaInputForCurrentMonth();
+    render();
+    metaInputEl.blur();
+  });
 
   // ---------- Flexible filter (Hoje / Ontem / Essa semana / Escolher data) ----------
   var activeFilter = "semana"; // "hoje" | "ontem" | "semana" | "custom"
@@ -161,26 +219,28 @@
   function render() {
     monthTitleEl.textContent = MONTH_NAMES[state.viewMonth] + " de " + state.viewYear;
 
-    // "Hoje" é sempre o dia real do relógio do computador, independente do
-    // mês selecionado no filtro acima (que agora só afeta o total do semestre).
+    // "Hoje" e "Ontem" são sempre os dias reais do relógio do computador,
+    // independentes do mês selecionado acima (que só afeta o total do mês).
     var today = new Date();
     totalHojeEl.textContent = formatCurrency(sumForRange(startOfDay(today), endOfDay(today)));
     totalHojeCaptionEl.textContent = formatShortDate(today);
 
+    var yesterday = addDays(today, -1);
+    totalOntemEl.textContent = formatCurrency(sumForRange(startOfDay(yesterday), endOfDay(yesterday)));
+    totalOntemCaptionEl.textContent = formatShortDate(yesterday);
+
+    var monthStart = new Date(state.viewYear, state.viewMonth, 1, 0, 0, 0, 0);
+    var monthEnd = new Date(state.viewYear, state.viewMonth + 1, 0, 23, 59, 59, 999);
+    var totalMesValor = sumForRange(monthStart, monthEnd);
+    totalMesEl.textContent = formatCurrency(totalMesValor);
+    totalMesCaptionEl.textContent = MONTH_NAMES[state.viewMonth] + " de " + state.viewYear;
+    renderMetaProgress(totalMesValor);
+    updateMetaInputForCurrentMonth();
+
     var filterInfo = getActiveFilterInfo();
     flexCardLabelEl.textContent = filterInfo.title;
-    totalSemanaEl.textContent = formatCurrency(sumForRange(filterInfo.start, filterInfo.end));
-    totalSemanaCaptionEl.textContent = filterInfo.caption;
-
-    var isFirstSemester = state.viewMonth < 6;
-    var semStartMonth = isFirstSemester ? 0 : 6;
-    var semEndMonth = isFirstSemester ? 5 : 11;
-    var semStart = new Date(state.viewYear, semStartMonth, 1, 0, 0, 0, 0);
-    var semEnd = new Date(state.viewYear, semEndMonth + 1, 0, 23, 59, 59, 999);
-    totalSemestreEl.textContent = formatCurrency(sumForRange(semStart, semEnd));
-    totalSemestreCaptionEl.textContent = (isFirstSemester ? "1º" : "2º") + " semestre de " + state.viewYear;
-
-    totalGeralEl.textContent = formatCurrency(sumAll());
+    totalPersonalizadoEl.textContent = formatCurrency(sumForRange(filterInfo.start, filterInfo.end));
+    totalPersonalizadoCaptionEl.textContent = filterInfo.caption;
   }
 
   document.getElementById("prevMonth").addEventListener("click", function () {
