@@ -1360,6 +1360,23 @@ html[data-theme="dark"] .btn-danger:hover:not(:disabled) { background: #ff8585; 
   color: var(--color-text-muted);
 }
 
+.produto-preco {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+  margin-top: 2px;
+}
+
+.produto-preco:hover {
+  text-decoration: underline;
+}
+
+.produto-preco-indisponivel {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
 .produto-remove-btn {
   position: absolute;
   top: 10px;

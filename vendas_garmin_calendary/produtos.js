@@ -19,6 +19,10 @@
     return div.innerHTML;
   }
 
+  function formatCurrency(n) {
+    return "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   function renderProdutos() {
     var query = searchInput.value.trim().toLowerCase();
     var filtered = produtos.filter(function (p) {
@@ -47,12 +51,22 @@
         thumbWrap.innerHTML = "<span class=\"produto-thumb-fallback\">Sem foto</span>";
       }
 
+      var garminInfo = GarminPrecos.getPreco(produto.sku);
+      var precoHtml;
+      if (garminInfo) {
+        precoHtml = "<a class=\"produto-preco\" href=\"" + escapeHtml(GarminPrecos.productUrl(garminInfo.handle)) +
+          "\" target=\"_blank\" rel=\"noopener noreferrer\">Preço Garmin: " + formatCurrency(garminInfo.preco) + "</a>";
+      } else {
+        precoHtml = "<span class=\"produto-preco produto-preco-indisponivel\">Preço Garmin: não encontrado</span>";
+      }
+
       var infoWrap = document.createElement("div");
       infoWrap.className = "produto-info";
       infoWrap.innerHTML =
         "<span class=\"produto-descricao\">" + escapeHtml(produto.descricao) + "</span>" +
         "<span class=\"produto-meta\">SKU: " + escapeHtml(produto.sku) + "</span>" +
-        "<span class=\"produto-meta\">Cód. barras: " + escapeHtml(produto.barcode || "—") + "</span>";
+        "<span class=\"produto-meta\">Cód. barras: " + escapeHtml(produto.barcode || "—") + "</span>" +
+        precoHtml;
 
       var removeBtn = document.createElement("button");
       removeBtn.type = "button";
@@ -348,7 +362,8 @@
     var session = await AppAuth.requireSession();
     if (!session) return;
     statusHintEl.textContent = "Carregando produtos...";
-    produtos = await DB.getProdutos();
+    var resultados = await Promise.all([DB.getProdutos(), GarminPrecos.ensureLoaded()]);
+    produtos = resultados[0];
     statusHintEl.textContent = produtos.length
       ? "Pesquise por código de barras ou adicione um novo produto."
       : "Nenhum produto no banco ainda. Adicione o primeiro pelo botão \"+\".";
