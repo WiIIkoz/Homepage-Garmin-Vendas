@@ -120,8 +120,43 @@
   var fieldNfe = document.getElementById("fieldNfe");
   var fieldQuantidade = document.getElementById("fieldQuantidade");
   var fieldValor = document.getElementById("fieldValor");
+  var skuMatchHint = document.getElementById("skuMatchHint");
 
   var DEFAULT_QUANTIDADE = "01";
+
+  // ---------- Auto-preenchimento por SKU (catálogo de produtos + Garmin Brasil) ----------
+  // Casa primeiro pelo catálogo próprio (tabela "produtos", com valor já cadastrado);
+  // se o SKU não estiver lá, cai para a busca ao vivo no site da Garmin Brasil.
+  var produtosPorSku = {};
+
+  function normalizeSku(sku) {
+    return String(sku || "").trim().toUpperCase();
+  }
+
+  function setProdutosCatalogo(produtos) {
+    produtosPorSku = {};
+    (produtos || []).forEach(function (produto) {
+      if (!produto.sku) return;
+      produtosPorSku[normalizeSku(produto.sku)] = produto;
+    });
+  }
+
+  function buscarInfoPorSku(sku) {
+    var key = normalizeSku(sku);
+    if (!key) return null;
+
+    var produtoCadastrado = produtosPorSku[key];
+    if (produtoCadastrado && produtoCadastrado.valor) {
+      return { descricao: produtoCadastrado.descricao, valor: Number(produtoCadastrado.valor) };
+    }
+
+    var garminInfo = window.GarminPrecos && GarminPrecos.getPreco(sku);
+    if (garminInfo) {
+      return { descricao: garminInfo.titulo, valor: garminInfo.preco };
+    }
+
+    return null;
+  }
 
   // Dígitos realmente digitados pelo usuário para o campo Valor (representam reais inteiros).
   // Mantidos à parte do texto exibido no input para não reprocessar o "R$ ...,00" já formatado.
@@ -168,6 +203,23 @@
 
   fieldQuantidade.addEventListener("input", function () {
     fieldQuantidade.value = fieldQuantidade.value.replace(/\D/g, "");
+    updateSaveButtonState();
+  });
+
+  // Ao digitar um SKU que já existe no catálogo (ou na Garmin Brasil), preenche
+  // descrição e valor sozinho — o usuário ainda pode editar os dois depois.
+  fieldSku.addEventListener("input", function () {
+    var info = buscarInfoPorSku(fieldSku.value);
+    if (info) {
+      fieldDescricao.value = info.descricao;
+      valorDigits = String(Math.round(info.valor));
+      renderValorField();
+      skuMatchHint.textContent = "Descrição e valor preenchidos automaticamente.";
+      skuMatchHint.classList.add("field-hint-success");
+    } else {
+      skuMatchHint.textContent = "";
+      skuMatchHint.classList.remove("field-hint-success");
+    }
     updateSaveButtonState();
   });
 
@@ -304,6 +356,8 @@
     fieldQuantidade.value = DEFAULT_QUANTIDADE;
     valorDigits = "";
     fieldValor.value = "";
+    skuMatchHint.textContent = "";
+    skuMatchHint.classList.remove("field-hint-success");
     updateSaveButtonState();
   }
 
@@ -484,7 +538,9 @@
   (async function init() {
     var session = await AppAuth.requireSession();
     if (!session) return;
-    data = await DB.getVendas();
+    var resultados = await Promise.all([DB.getVendas(), DB.getProdutos(), GarminPrecos.ensureLoaded()]);
+    data = resultados[0];
+    setProdutosCatalogo(resultados[1]);
     renderCalendar();
   })();
 })();
