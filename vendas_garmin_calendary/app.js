@@ -223,6 +223,82 @@
     updateSaveButtonState();
   });
 
+  // ---------- Adicionar valor extra (porcentagem ou valor fixo) ----------
+  var valorAdjustToggleBtn = document.getElementById("valorAdjustToggleBtn");
+  var valorAdjustPanel = document.getElementById("valorAdjustPanel");
+  var valorAdjustCloseBtn = document.getElementById("valorAdjustCloseBtn");
+  var modoPercentualBtn = document.getElementById("modoPercentualBtn");
+  var modoValorBtn = document.getElementById("modoValorBtn");
+  var valorAdjustInput = document.getElementById("valorAdjustInput");
+  var valorAdjustApplyBtn = document.getElementById("valorAdjustApplyBtn");
+  var valorAdjustHint = document.getElementById("valorAdjustHint");
+
+  var valorAdjustModo = "percentual";
+
+  function parseValorAdjustInput(str) {
+    var normalized = String(str || "").trim().replace(/\./g, "").replace(",", ".");
+    var n = parseFloat(normalized);
+    return isNaN(n) ? null : n;
+  }
+
+  function resetValorAdjustPanel() {
+    valorAdjustInput.value = "";
+    valorAdjustHint.textContent = "";
+    valorAdjustHint.classList.remove("field-hint-success");
+  }
+
+  function openValorAdjustPanel() {
+    valorAdjustPanel.hidden = false;
+    resetValorAdjustPanel();
+    valorAdjustInput.focus();
+  }
+
+  function closeValorAdjustPanel() {
+    valorAdjustPanel.hidden = true;
+    resetValorAdjustPanel();
+  }
+
+  function setValorAdjustModo(modo) {
+    valorAdjustModo = modo;
+    modoPercentualBtn.classList.toggle("active", modo === "percentual");
+    modoValorBtn.classList.toggle("active", modo === "valor");
+    valorAdjustInput.placeholder = modo === "percentual" ? "Ex: 10" : "Ex: 50,00";
+    resetValorAdjustPanel();
+    valorAdjustInput.focus();
+  }
+
+  valorAdjustToggleBtn.addEventListener("click", function () {
+    if (valorAdjustPanel.hidden) {
+      openValorAdjustPanel();
+    } else {
+      closeValorAdjustPanel();
+    }
+  });
+
+  valorAdjustCloseBtn.addEventListener("click", closeValorAdjustPanel);
+
+  modoPercentualBtn.addEventListener("click", function () { setValorAdjustModo("percentual"); });
+  modoValorBtn.addEventListener("click", function () { setValorAdjustModo("valor"); });
+
+  valorAdjustApplyBtn.addEventListener("click", function () {
+    var entrada = parseValorAdjustInput(valorAdjustInput.value);
+    if (entrada === null || entrada <= 0) {
+      valorAdjustHint.textContent = valorAdjustModo === "percentual"
+        ? "Digite uma porcentagem válida."
+        : "Digite um valor válido.";
+      valorAdjustHint.classList.remove("field-hint-success");
+      return;
+    }
+
+    var valorAtual = parseInt(valorDigits, 10) || 0;
+    var incremento = valorAdjustModo === "percentual" ? valorAtual * (entrada / 100) : entrada;
+    valorDigits = String(Math.round(valorAtual + incremento));
+    renderValorField();
+    updateSaveButtonState();
+
+    closeValorAdjustPanel();
+  });
+
   function formatDateForTitle(key) {
     var parts = key.split("-");
     var d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
@@ -358,6 +434,7 @@
     fieldValor.value = "";
     skuMatchHint.textContent = "";
     skuMatchHint.classList.remove("field-hint-success");
+    closeValorAdjustPanel();
     updateSaveButtonState();
   }
 

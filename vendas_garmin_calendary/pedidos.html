@@ -109,10 +109,27 @@
             <input type="text" id="fieldQuantidade" inputmode="numeric" placeholder="01" autocomplete="off">
           </div>
           <div class="field">
-            <label for="fieldValor">Valor <span class="req">*</span></label>
+            <div class="field-label-row">
+              <label for="fieldValor">Valor <span class="req">*</span></label>
+              <button type="button" class="valor-adjust-toggle-btn" id="valorAdjustToggleBtn">+ Adicionar valor</button>
+            </div>
             <input type="text" id="fieldValor" inputmode="numeric" placeholder="R$ 0,00" autocomplete="off">
           </div>
         </div>
+
+        <div class="valor-adjust-panel" id="valorAdjustPanel" hidden>
+          <div class="valor-adjust-modes">
+            <button type="button" class="valor-adjust-mode-btn active" id="modoPercentualBtn" data-modo="percentual">Porcentagem (%)</button>
+            <button type="button" class="valor-adjust-mode-btn" id="modoValorBtn" data-modo="valor">Valor (R$)</button>
+          </div>
+          <div class="valor-adjust-input-row">
+            <input type="text" id="valorAdjustInput" inputmode="decimal" placeholder="Ex: 10" autocomplete="off">
+            <button type="button" class="btn btn-primary" id="valorAdjustApplyBtn">Adicionar</button>
+            <button type="button" class="valor-adjust-close-btn" id="valorAdjustCloseBtn" aria-label="Fechar">&times;</button>
+          </div>
+          <span class="field-hint" id="valorAdjustHint"></span>
+        </div>
+
         <p class="form-hint" id="formHint">Preencha todos os campos para poder salvar o item.</p>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary" id="saveItemBtn" disabled>Salvar item</button>

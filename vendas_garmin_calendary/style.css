@@ -712,6 +712,102 @@ a {
   font-weight: 600;
 }
 
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.valor-adjust-toggle-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+.valor-adjust-toggle-btn:hover {
+  text-decoration: underline;
+}
+
+.valor-adjust-panel {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.valor-adjust-panel[hidden] {
+  display: none;
+}
+
+.valor-adjust-modes {
+  display: flex;
+  gap: 8px;
+}
+
+.valor-adjust-mode-btn {
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+.valor-adjust-mode-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.valor-adjust-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.valor-adjust-input-row input {
+  flex: 1;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.valor-adjust-input-row input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.valor-adjust-input-row .btn {
+  padding: 9px 16px;
+  white-space: nowrap;
+}
+
+.valor-adjust-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 0 4px;
+}
+.valor-adjust-close-btn:hover {
+  color: var(--color-text);
+}
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
