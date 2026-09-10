@@ -111,8 +111,13 @@
   var itemsListEl = document.getElementById("itemsList");
   var emptyStateEl = document.getElementById("emptyState");
   var itemForm = document.getElementById("itemForm");
+  var formTitleEl = document.getElementById("formTitle");
   var saveItemBtn = document.getElementById("saveItemBtn");
+  var cancelEditBtn = document.getElementById("cancelEditBtn");
   var formHint = document.getElementById("formHint");
+
+  // Quando não-nulo, o formulário está editando este item (em vez de criar um novo).
+  var editingItemId = null;
 
   var fieldDescricao = document.getElementById("fieldDescricao");
   var fieldSku = document.getElementById("fieldSku");
@@ -158,15 +163,30 @@
     return null;
   }
 
-  // Dígitos realmente digitados pelo usuário para o campo Valor (representam reais inteiros).
-  // Mantidos à parte do texto exibido no input para não reprocessar o "R$ ...,00" já formatado.
+  // Dígitos realmente digitados pelo usuário para o campo Valor (representam centavos —
+  // preenchem a máscara da direita pra esquerda, então dá pra editar os centavos).
+  // Mantidos à parte do texto exibido no input para não reprocessar o "R$ ...,.." já formatado.
   var valorDigits = "";
 
   function formatCurrencyFromDigits(digits) {
     if (!digits) return "";
-    var reais = parseInt(digits, 10);
-    if (isNaN(reais)) return "";
-    return "R$ " + reais.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    var centavos = parseInt(digits, 10);
+    if (isNaN(centavos)) return "";
+    return "R$ " + (centavos / 100).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // Converte um valor em reais (ex: 629.9) para a string de dígitos-centavos usada
+  // pela máscara acima (ex: "62990"), para preencher o campo programaticamente
+  // (auto-preenchimento por SKU, painel de adicionar valor) do mesmo jeito que o
+  // usuário preencheria digitando.
+  function valorDigitsFromReais(valorReais) {
+    return String(Math.round((valorReais || 0) * 100));
+  }
+
+  // Extrai os dígitos-centavos a partir de um texto já formatado (ex: "R$ 629,90"
+  // vindo de um item salvo), pra reabrir a edição com o mesmo valor na máscara.
+  function valorDigitsFromTexto(texto) {
+    return String(texto || "").replace(/\D/g, "").replace(/^0+(?=\d)/, "");
   }
 
   function renderValorField() {
@@ -212,7 +232,7 @@
     var info = buscarInfoPorSku(fieldSku.value);
     if (info) {
       fieldDescricao.value = info.descricao;
-      valorDigits = String(Math.round(info.valor));
+      valorDigits = valorDigitsFromReais(info.valor);
       renderValorField();
       skuMatchHint.textContent = "Descrição e valor preenchidos automaticamente.";
       skuMatchHint.classList.add("field-hint-success");
@@ -290,9 +310,9 @@
       return;
     }
 
-    var valorAtual = parseInt(valorDigits, 10) || 0;
+    var valorAtual = (parseInt(valorDigits, 10) || 0) / 100;
     var incremento = valorAdjustModo === "percentual" ? valorAtual * (entrada / 100) : entrada;
-    valorDigits = String(Math.round(valorAtual + incremento));
+    valorDigits = valorDigitsFromReais(valorAtual + incremento);
     renderValorField();
     updateSaveButtonState();
 
@@ -310,7 +330,7 @@
     state.selectedDateKey = key;
     modalTitle.textContent = formatDateForTitle(key);
     renderItemsList();
-    clearForm();
+    exitEditMode();
     modalOverlay.classList.add("open");
     document.body.style.overflow = "hidden";
     fieldDescricao.focus();
@@ -400,6 +420,16 @@
         toggleBtn.setAttribute("aria-label", isOpen ? "Recolher detalhes do item" : "Expandir detalhes do item");
       });
 
+      var editBtn = document.createElement("button");
+      editBtn.type = "button";
+      editBtn.className = "edit-item-btn";
+      editBtn.innerHTML =
+        "<svg class=\"edit-item-icon\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z\"/></svg>";
+      editBtn.title = "Editar item";
+      editBtn.addEventListener("click", function () {
+        startEditItem(item);
+      });
+
       var removeBtn = document.createElement("button");
       removeBtn.type = "button";
       removeBtn.className = "remove-item-btn";
@@ -412,6 +442,9 @@
           if (items.length === 0) {
             delete data[state.selectedDateKey];
           }
+          if (editingItemId === item.id) {
+            exitEditMode();
+          }
           renderItemsList();
           renderCalendar();
         });
@@ -420,6 +453,7 @@
       header.appendChild(toggleBtn);
       header.appendChild(summary);
       header.appendChild(summaryValor);
+      header.appendChild(editBtn);
       header.appendChild(removeBtn);
       card.appendChild(header);
       card.appendChild(details);
@@ -437,6 +471,41 @@
     closeValorAdjustPanel();
     updateSaveButtonState();
   }
+
+  // Preenche o formulário com os dados de um item já lançado, pra edição —
+  // assim o usuário pode corrigir qualquer campo (inclusive os centavos do
+  // valor) sem precisar excluir e recriar o item do zero.
+  function startEditItem(item) {
+    editingItemId = item.id;
+    fieldDescricao.value = item.descricao || "";
+    fieldSku.value = item.sku || "";
+    fieldVendedor.value = item.vendedor || "";
+    fieldNfe.value = item.nfe || "";
+    fieldQuantidade.value = item.quantidade || DEFAULT_QUANTIDADE;
+    valorDigits = valorDigitsFromTexto(item.valor);
+    renderValorField();
+    skuMatchHint.textContent = "";
+    skuMatchHint.classList.remove("field-hint-success");
+    closeValorAdjustPanel();
+
+    formTitleEl.textContent = "Editar item vendido";
+    saveItemBtn.textContent = "Salvar alterações";
+    cancelEditBtn.hidden = false;
+    updateSaveButtonState();
+    itemForm.scrollIntoView({ behavior: "smooth", block: "start" });
+    fieldDescricao.focus();
+  }
+
+  // Sai do modo de edição e volta o formulário para "adicionar item novo".
+  function exitEditMode() {
+    editingItemId = null;
+    formTitleEl.textContent = "Adicionar item vendido";
+    saveItemBtn.textContent = "Salvar item";
+    cancelEditBtn.hidden = true;
+    clearForm();
+  }
+
+  cancelEditBtn.addEventListener("click", exitEditMode);
 
   function isQuantidadeValid() {
     var n = parseInt(fieldQuantidade.value, 10);
@@ -461,7 +530,7 @@
   itemForm.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    var newItem = {
+    var itemPayload = {
       descricao: fieldDescricao.value.trim(),
       sku: fieldSku.value.trim(),
       vendedor: fieldVendedor.value.trim(),
@@ -470,25 +539,40 @@
       valor: fieldValor.value.trim()
     };
 
-    if (!newItem.descricao || !newItem.sku || !newItem.vendedor || !newItem.nfe || !isQuantidadeValid() || !newItem.valor) {
+    if (!itemPayload.descricao || !itemPayload.sku || !itemPayload.vendedor || !itemPayload.nfe || !isQuantidadeValid() || !itemPayload.valor) {
       return;
     }
 
     saveItemBtn.disabled = true;
-    var inserted = await DB.addVenda(state.selectedDateKey, newItem);
-    saveItemBtn.disabled = false;
 
-    if (!inserted) {
-      formHint.textContent = "Não foi possível salvar o item. Tente novamente.";
-      return;
+    if (editingItemId) {
+      var updated = await DB.updateVenda(editingItemId, itemPayload);
+      saveItemBtn.disabled = false;
+
+      if (!updated) {
+        formHint.textContent = "Não foi possível salvar as alterações. Tente novamente.";
+        return;
+      }
+
+      var items = data[state.selectedDateKey] || [];
+      var idx = items.findIndex(function (i) { return i.id === updated.id; });
+      if (idx !== -1) items[idx] = updated;
+    } else {
+      var inserted = await DB.addVenda(state.selectedDateKey, itemPayload);
+      saveItemBtn.disabled = false;
+
+      if (!inserted) {
+        formHint.textContent = "Não foi possível salvar o item. Tente novamente.";
+        return;
+      }
+
+      if (!data[state.selectedDateKey]) {
+        data[state.selectedDateKey] = [];
+      }
+      data[state.selectedDateKey].push(inserted);
     }
 
-    if (!data[state.selectedDateKey]) {
-      data[state.selectedDateKey] = [];
-    }
-    data[state.selectedDateKey].push(inserted);
-
-    clearForm();
+    exitEditMode();
     renderItemsList();
     renderCalendar();
     fieldDescricao.focus();

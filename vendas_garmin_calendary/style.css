@@ -649,6 +649,27 @@ a {
 }
 .item-card .remove-item-btn:hover { background: var(--color-danger-bg); }
 
+.item-card .edit-item-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.item-card .edit-item-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-primary);
+}
+
+.edit-item-icon {
+  width: 16px;
+  height: 16px;
+}
+
 .item-form {
   border-top: 1px dashed var(--color-border);
   padding-top: 18px;
@@ -811,6 +832,7 @@ a {
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
   margin-top: 12px;
 }
 

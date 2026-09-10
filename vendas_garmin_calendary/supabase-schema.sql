@@ -59,6 +59,8 @@ create policy "Usuarios logados podem ler vendas"
   on vendas for select to authenticated using (true);
 create policy "Usuarios logados podem inserir vendas"
   on vendas for insert to authenticated with check (true);
+create policy "Usuarios logados podem atualizar vendas"
+  on vendas for update to authenticated using (true) with check (true);
 create policy "Usuarios logados podem excluir vendas"
   on vendas for delete to authenticated using (true);
 
@@ -549,3 +551,12 @@ insert into produtos (barcode, sku, descricao, foto, origem) values
 -- não rode o arquivo inteiro de novo, isso duplicaria o catálogo acima.
 -- ---------------------------------------------------------------------
 alter table produtos add column if not exists valor numeric;
+
+-- ---------------------------------------------------------------------
+-- MIGRAÇÃO: permite editar itens de venda já lançados (antes só dava pra
+-- inserir/excluir). Rode SÓ este bloco no SQL Editor do Supabase.
+-- (drop + create pra poder rodar de novo sem erro caso já exista)
+-- ---------------------------------------------------------------------
+drop policy if exists "Usuarios logados podem atualizar vendas" on vendas;
+create policy "Usuarios logados podem atualizar vendas"
+  on vendas for update to authenticated using (true) with check (true);

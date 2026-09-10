@@ -85,7 +85,7 @@
       </div>
 
       <form class="item-form" id="itemForm" novalidate>
-        <h3 class="form-title">Adicionar item vendido</h3>
+        <h3 class="form-title" id="formTitle">Adicionar item vendido</h3>
         <div class="form-grid">
           <div class="field">
             <label for="fieldDescricao">Descrição <span class="req">*</span></label>
@@ -132,6 +132,7 @@
 
         <p class="form-hint" id="formHint">Preencha todos os campos para poder salvar o item.</p>
         <div class="form-actions">
+          <button type="button" class="btn btn-outline" id="cancelEditBtn" hidden>Cancelar edição</button>
           <button type="submit" class="btn btn-primary" id="saveItemBtn" disabled>Salvar item</button>
         </div>
       </form>

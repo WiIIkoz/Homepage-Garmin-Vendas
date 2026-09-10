@@ -70,6 +70,37 @@
     };
   }
 
+  // Atualiza uma venda já existente (edição de um item já lançado no dia).
+  // Retorna o item atualizado, ou null se falhar.
+  async function updateVenda(id, item) {
+    var db = client();
+    if (!db) return null;
+
+    var result = await db.from("vendas").update({
+      descricao: item.descricao,
+      sku: item.sku,
+      vendedor: item.vendedor,
+      nfe: item.nfe,
+      quantidade: item.quantidade,
+      valor: item.valor
+    }).eq("id", id).select().single();
+
+    if (result.error) {
+      console.error("Falha ao atualizar venda:", result.error);
+      return null;
+    }
+
+    return {
+      id: result.data.id,
+      descricao: result.data.descricao,
+      sku: result.data.sku,
+      vendedor: result.data.vendedor,
+      nfe: result.data.nfe,
+      quantidade: result.data.quantidade,
+      valor: result.data.valor
+    };
+  }
+
   async function deleteVenda(id) {
     var db = client();
     if (!db) return false;
@@ -131,6 +162,7 @@
   window.DB = {
     getVendas: getVendas,
     addVenda: addVenda,
+    updateVenda: updateVenda,
     deleteVenda: deleteVenda,
     getProdutos: getProdutos,
     addProduto: addProduto,
