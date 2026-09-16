@@ -47,6 +47,31 @@
   var disponiveisEmptyState = document.getElementById("disponiveisEmptyState");
   var overdueWarningBanner = document.getElementById("overdueWarningBanner");
 
+  var tabCountChamados = document.getElementById("tabCountChamados");
+  var tabCountEnviados = document.getElementById("tabCountEnviados");
+  var tabCountDisponiveis = document.getElementById("tabCountDisponiveis");
+
+  // ---------- Abas (Chamados / Enviados / Disponíveis) ----------
+  var tabButtons = document.querySelectorAll(".rctech-tab-btn");
+  var tabPanels = {
+    chamados: document.getElementById("tabPanelChamados"),
+    enviados: document.getElementById("tabPanelEnviados"),
+    disponiveis: document.getElementById("tabPanelDisponiveis")
+  };
+
+  function setActiveTab(tab) {
+    tabButtons.forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.tab === tab);
+    });
+    Object.keys(tabPanels).forEach(function (key) {
+      tabPanels[key].hidden = key !== tab;
+    });
+  }
+
+  tabButtons.forEach(function (btn) {
+    btn.addEventListener("click", function () { setActiveTab(btn.dataset.tab); });
+  });
+
   var toastEl = document.getElementById("toast");
   var toastTimer = null;
 
@@ -116,6 +141,7 @@
 
   function renderChamados() {
     var abertos = porStatus("aberto");
+    tabCountChamados.textContent = String(abertos.length);
     chamadosListEl.innerHTML = "";
     chamadosEmptyState.hidden = abertos.length > 0;
 
@@ -143,8 +169,11 @@
   }
 
   function renderEnviados() {
+    var todosEnviados = porStatus("enviado");
+    tabCountEnviados.textContent = String(todosEnviados.length);
+
     var query = enviadosSearch.value.trim().toLowerCase();
-    var enviados = porStatus("enviado").filter(function (c) {
+    var enviados = todosEnviados.filter(function (c) {
       return !query || c.numero.toLowerCase().indexOf(query) !== -1;
     });
 
@@ -179,6 +208,7 @@
 
   function renderDisponiveis() {
     var disponiveis = porStatus("disponivel");
+    tabCountDisponiveis.textContent = String(disponiveis.length);
     disponiveisListEl.innerHTML = "";
     disponiveisEmptyState.hidden = disponiveis.length > 0;
 
@@ -208,6 +238,8 @@
       });
       disponiveisListEl.appendChild(row);
     });
+
+    tabCountDisponiveis.classList.toggle("rctech-tab-count-danger", vencidos > 0);
 
     if (vencidos > 0) {
       overdueWarningBanner.hidden = false;

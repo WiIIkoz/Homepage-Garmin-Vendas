@@ -1686,6 +1686,52 @@ html[data-theme="dark"] .btn-danger:hover:not(:disabled) { background: #ff8585; 
   margin: 0 0 6px;
 }
 
+.rctech-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.rctech-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+.rctech-tab-btn:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+.rctech-tab-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.rctech-tab-count {
+  background: rgba(0, 0, 0, 0.12);
+  color: inherit;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.rctech-tab-btn.active .rctech-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+}
+.rctech-tab-count.rctech-tab-count-danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
 .rctech-add-form {
   display: flex;
   flex-wrap: wrap;

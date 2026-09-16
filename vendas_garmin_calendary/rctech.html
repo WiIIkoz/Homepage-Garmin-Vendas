@@ -63,13 +63,25 @@
     </form>
   </section>
 
-  <section class="rctech-section">
+  <div class="rctech-tabs" id="rctechTabs">
+    <button type="button" class="rctech-tab-btn active" data-tab="chamados">
+      Chamados <span class="rctech-tab-count" id="tabCountChamados">0</span>
+    </button>
+    <button type="button" class="rctech-tab-btn" data-tab="enviados">
+      Enviados <span class="rctech-tab-count" id="tabCountEnviados">0</span>
+    </button>
+    <button type="button" class="rctech-tab-btn" data-tab="disponiveis">
+      Disponíveis para retirada <span class="rctech-tab-count" id="tabCountDisponiveis">0</span>
+    </button>
+  </div>
+
+  <section class="rctech-section" id="tabPanelChamados">
     <h2 class="rctech-section-title">Chamados</h2>
     <p class="empty-state" id="chamadosEmptyState">Nenhum chamado em aberto no momento.</p>
     <div class="rctech-list" id="chamadosList"></div>
   </section>
 
-  <section class="rctech-section">
+  <section class="rctech-section" id="tabPanelEnviados" hidden>
     <h2 class="rctech-section-title">Enviados</h2>
     <div class="produtos-search">
       <svg class="produtos-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -79,7 +91,7 @@
     <div class="rctech-list" id="enviadosList"></div>
   </section>
 
-  <section class="rctech-section">
+  <section class="rctech-section" id="tabPanelDisponiveis" hidden>
     <h2 class="rctech-section-title">Disponíveis para retirada</h2>
     <p class="rctech-warning-banner" id="overdueWarningBanner" hidden></p>
     <p class="empty-state" id="disponiveisEmptyState">Nenhum item disponível para retirada no momento.</p>
