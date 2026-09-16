@@ -23,6 +23,20 @@
     return year + "-" + m + "-" + d;
   }
 
+  // Soma dos valores dos itens de um dia, pra mostrar o total dentro do quadrado
+  // do calendário. item.valor é o texto já formatado (ex: "R$ 629,90"), então
+  // precisa reconverter pra número antes de somar.
+  function parseValorTexto(str) {
+    if (!str) return 0;
+    var normalized = String(str).replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
+    var n = parseFloat(normalized);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function formatCurrency(n) {
+    return "R$ " + n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   // ---------- Calendar rendering ----------
   var monthTitleEl = document.getElementById("monthTitle");
   var calendarGridEl = document.getElementById("calendarGrid");
@@ -62,10 +76,23 @@
 
       var itemsForDay = data[key];
       if (itemsForDay && itemsForDay.length > 0) {
+        var footer = document.createElement("div");
+        footer.className = "day-footer";
+
         var badge = document.createElement("span");
         badge.className = "item-badge";
         badge.textContent = itemsForDay.length + (itemsForDay.length === 1 ? " item" : " itens");
-        cell.appendChild(badge);
+        footer.appendChild(badge);
+
+        var totalDia = itemsForDay.reduce(function (soma, item) {
+          return soma + parseValorTexto(item.valor);
+        }, 0);
+        var totalEl = document.createElement("span");
+        totalEl.className = "day-total";
+        totalEl.textContent = formatCurrency(totalDia);
+        footer.appendChild(totalEl);
+
+        cell.appendChild(footer);
       }
 
       cell.addEventListener("click", (function (dayKey) {

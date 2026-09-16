@@ -432,9 +432,16 @@ a {
   font-size: 14px;
 }
 
-.day-cell .item-badge {
+.day-cell .day-footer {
   margin-top: auto;
-  align-self: flex-end;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.day-cell .item-badge {
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -445,6 +452,16 @@ a {
   font-weight: 700;
   border-radius: 999px;
   padding: 2px 8px;
+}
+
+.day-cell .day-total {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primary);
 }
 
 .legend {
@@ -929,6 +946,9 @@ a {
   .item-card-details { padding-left: 0; }
   .footer-top { grid-template-columns: 1fr; }
   .home-greeting { display: none; }
+  .day-cell { padding: 4px; }
+  .day-cell .item-badge { padding: 1px 5px; font-size: 9px; }
+  .day-cell .day-total { font-size: 9px; }
 }
 
 /* ---------- SMALL MODALS (config / confirm) ---------- */
