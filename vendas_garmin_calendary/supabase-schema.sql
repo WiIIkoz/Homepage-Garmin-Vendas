@@ -560,3 +560,41 @@ alter table produtos add column if not exists valor numeric;
 drop policy if exists "Usuarios logados podem atualizar vendas" on vendas;
 create policy "Usuarios logados podem atualizar vendas"
   on vendas for update to authenticated using (true) with check (true);
+
+-- ---------------------------------------------------------------------
+-- MIGRAÇÃO: tabela de chamados de assistência técnica (página "Rc Tech").
+-- Rode este bloco no SQL Editor do Supabase.
+--
+-- status vai passando por: 'aberto' -> 'enviado' -> 'disponivel', conforme
+-- o chamado avança pelas 3 seções da página (Chamados / Enviados /
+-- Disponíveis para retirada).
+-- ---------------------------------------------------------------------
+create table if not exists chamados_assistencia (
+  id uuid primary key default gen_random_uuid(),
+  numero text not null,
+  status text not null default 'aberto',
+  data_abertura timestamptz not null default now(),
+  data_envio timestamptz,
+  data_retorno timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists chamados_assistencia_numero_idx on chamados_assistencia (numero);
+
+alter table chamados_assistencia enable row level security;
+
+drop policy if exists "Usuarios logados podem ler chamados" on chamados_assistencia;
+create policy "Usuarios logados podem ler chamados"
+  on chamados_assistencia for select to authenticated using (true);
+
+drop policy if exists "Usuarios logados podem inserir chamados" on chamados_assistencia;
+create policy "Usuarios logados podem inserir chamados"
+  on chamados_assistencia for insert to authenticated with check (true);
+
+drop policy if exists "Usuarios logados podem atualizar chamados" on chamados_assistencia;
+create policy "Usuarios logados podem atualizar chamados"
+  on chamados_assistencia for update to authenticated using (true) with check (true);
+
+drop policy if exists "Usuarios logados podem excluir chamados" on chamados_assistencia;
+create policy "Usuarios logados podem excluir chamados"
+  on chamados_assistencia for delete to authenticated using (true);

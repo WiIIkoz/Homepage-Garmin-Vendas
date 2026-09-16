@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Relatório — Estoque Calendário</title>
+<title>Rc Tech — Estoque Calendário</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -55,54 +55,35 @@
 <main class="main-content">
 
   <section class="calendar-card">
-    <div class="calendar-toolbar">
-      <button class="nav-btn" id="prevMonth" type="button" aria-label="Mês anterior">&#10094;</button>
-      <h1 class="month-title" id="monthTitle"></h1>
-      <button class="nav-btn" id="nextMonth" type="button" aria-label="Próximo mês">&#10095;</button>
-      <div class="report-toolbar-right">
-        <input type="text" class="meta-input" id="metaInput" inputmode="decimal" placeholder="Meta do mês (R$)" title="Digite a meta de vendas do mês e aperte Enter para salvar">
-        <div class="filter-menu">
-          <button class="btn btn-today" id="filterBtn" type="button" aria-haspopup="true" aria-expanded="false">
-            Filtro
-            <svg class="filter-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <div class="filter-popover" id="filterPopover">
-            <button class="filter-option" type="button" id="filterHoje">Hoje</button>
-            <button class="filter-option" type="button" id="filterOntem">Ontem</button>
-            <button class="filter-option" type="button" id="filterSemana">Essa semana</button>
-            <button class="filter-option" type="button" id="filterCustom">Escolher data</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <p class="report-filter-hint">Selecione o mês para atualizar o total do mês e a meta abaixo. Digite uma meta (R$) e aperte Enter para salvá-la.</p>
+    <h1 class="rctech-page-title">Rc Tech — Assistência Técnica</h1>
+    <p class="report-filter-hint">Registre um chamado sempre que um cliente trouxer um item pra assistência.</p>
+    <form class="rctech-add-form" id="chamadoForm">
+      <input type="text" id="fieldNumeroChamado" placeholder="Número do chamado (ex: 99981231)" autocomplete="off">
+      <button type="submit" class="btn btn-primary" id="addChamadoBtn" disabled>Adicionar chamado</button>
+    </form>
   </section>
 
-  <section class="report-grid">
-    <div class="report-card">
-      <span class="report-card-label">Hoje</span>
-      <span class="report-card-value" id="totalHoje">R$ 0,00</span>
-      <span class="report-card-caption" id="totalHojeCaption"></span>
-    </div>
+  <section class="rctech-section">
+    <h2 class="rctech-section-title">Chamados</h2>
+    <p class="empty-state" id="chamadosEmptyState">Nenhum chamado em aberto no momento.</p>
+    <div class="rctech-list" id="chamadosList"></div>
+  </section>
 
-    <div class="report-card">
-      <span class="report-card-label">Ontem</span>
-      <span class="report-card-value" id="totalOntem">R$ 0,00</span>
-      <span class="report-card-caption" id="totalOntemCaption"></span>
+  <section class="rctech-section">
+    <h2 class="rctech-section-title">Enviados</h2>
+    <div class="produtos-search">
+      <svg class="produtos-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="enviadosSearch" placeholder="Pesquisar por número do chamado..." autocomplete="off">
     </div>
+    <p class="empty-state" id="enviadosEmptyState">Nenhum item enviado para assistência no momento.</p>
+    <div class="rctech-list" id="enviadosList"></div>
+  </section>
 
-    <div class="report-card">
-      <span class="report-card-label">Total do mês</span>
-      <span class="report-card-value" id="totalMes">R$ 0,00</span>
-      <span class="report-card-caption" id="totalMesCaption"></span>
-      <span class="report-card-meta" id="metaProgress"></span>
-    </div>
-
-    <div class="report-card">
-      <span class="report-card-label" id="flexCardLabel">Período personalizado</span>
-      <span class="report-card-value" id="totalPersonalizado">R$ 0,00</span>
-      <span class="report-card-caption" id="totalPersonalizadoCaption"></span>
-    </div>
+  <section class="rctech-section">
+    <h2 class="rctech-section-title">Disponíveis para retirada</h2>
+    <p class="rctech-warning-banner" id="overdueWarningBanner" hidden></p>
+    <p class="empty-state" id="disponiveisEmptyState">Nenhum item disponível para retirada no momento.</p>
+    <div class="rctech-list" id="disponiveisList"></div>
   </section>
 
 </main>
@@ -128,30 +109,25 @@
   </div>
 </div>
 
-<!-- RANGE PICKER MODAL -->
-<div class="modal-overlay" id="rangeModalOverlay">
-  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="rangeModalTitle">
+<!-- REMOVE CONFIRM MODAL -->
+<div class="modal-overlay" id="confirmModalOverlay">
+  <div class="modal modal-sm" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
     <div class="modal-header">
-      <h2 id="rangeModalTitle">Escolher período</h2>
-      <button class="modal-close" id="rangeModalClose" aria-label="Fechar">&times;</button>
+      <h2 id="confirmModalTitle">Remover chamado</h2>
+      <button class="modal-close" id="confirmModalClose" aria-label="Fechar">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="mini-cal-toolbar">
-        <button class="nav-btn" id="miniPrevMonth" type="button" aria-label="Mês anterior">&#10094;</button>
-        <span class="mini-cal-title" id="miniCalTitle"></span>
-        <button class="nav-btn" id="miniNextMonth" type="button" aria-label="Próximo mês">&#10095;</button>
-      </div>
-      <div class="mini-weekday-row">
-        <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
-      </div>
-      <div class="mini-cal-grid" id="miniCalGrid"></div>
-      <p class="range-hint" id="rangeHint">Selecione o primeiro dia do período.</p>
-      <div class="form-actions">
-        <button class="btn btn-primary" id="rangeApplyBtn" type="button" disabled>Aplicar período</button>
+      <p class="confirm-text" id="confirmModalText">Tem certeza que deseja remover este chamado? Essa ação não pode ser desfeita.</p>
+      <div class="confirm-actions">
+        <button class="btn btn-outline" id="confirmCancelBtn" type="button">Cancelar</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn" type="button">Remover</button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- FOOTER -->
 <footer class="site-footer">
@@ -208,6 +184,6 @@
 <script src="supabase-config.js"></script>
 <script src="supabase-client.js"></script>
 <script src="db.js"></script>
-<script src="relatorio.js"></script>
+<script src="rctech.js"></script>
 </body>
 </html>

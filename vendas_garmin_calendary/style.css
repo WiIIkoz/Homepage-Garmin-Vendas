@@ -1679,3 +1679,131 @@ html[data-theme="dark"] .btn-danger:hover:not(:disabled) { background: #ff8585; 
   justify-content: center;
   padding: 11px 16px;
 }
+
+/* ---------- RC TECH (assistência técnica) ---------- */
+.rctech-page-title {
+  font-size: 20px;
+  margin: 0 0 6px;
+}
+
+.rctech-add-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.rctech-add-form input {
+  flex: 1;
+  min-width: 220px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.rctech-add-form input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.rctech-section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 20px 24px;
+  margin-top: 20px;
+}
+
+.rctech-section-title {
+  font-size: 16px;
+  margin: 0 0 14px;
+}
+
+.rctech-section .produtos-search {
+  margin-bottom: 14px;
+}
+
+.rctech-warning-banner {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0 0 14px;
+}
+
+.rctech-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rctech-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  background: var(--color-bg);
+  flex-wrap: wrap;
+}
+
+.rctech-item-overdue {
+  border-color: var(--color-danger);
+}
+
+.rctech-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.rctech-item-numero {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.rctech-item-data {
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+}
+
+.rctech-overdue-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-danger);
+  margin-top: 2px;
+}
+
+.rctech-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.rctech-item-actions .remove-item-btn {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  font-size: 20px;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+.rctech-item-actions .remove-item-btn:hover { background: var(--color-danger-bg); }
+
+@media (max-width: 560px) {
+  .rctech-item { flex-direction: column; align-items: stretch; }
+  .rctech-item-actions { justify-content: flex-end; }
+}

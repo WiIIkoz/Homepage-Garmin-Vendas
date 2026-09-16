@@ -159,6 +159,64 @@
     return true;
   }
 
+  // ---------- Chamados de assistência técnica (página Rc Tech) ----------
+  // status vai passando por: "aberto" -> "enviado" -> "disponivel", conforme
+  // o chamado avança pelas 3 seções da página.
+
+  async function getChamados() {
+    var db = client();
+    if (!db) return [];
+
+    var result = await db.from("chamados_assistencia").select("*").order("created_at", { ascending: true });
+    if (result.error) {
+      console.error("Falha ao carregar chamados:", result.error);
+      return [];
+    }
+    return result.data || [];
+  }
+
+  async function addChamado(numero) {
+    var db = client();
+    if (!db) return null;
+
+    var result = await db.from("chamados_assistencia").insert({
+      numero: numero,
+      status: "aberto"
+    }).select().single();
+
+    if (result.error) {
+      console.error("Falha ao salvar chamado:", result.error);
+      return null;
+    }
+    return result.data;
+  }
+
+  // "fields" é um objeto parcial (ex: { status: "enviado", data_envio: "..." })
+  // com só os campos que mudaram nessa transição do chamado.
+  async function updateChamado(id, fields) {
+    var db = client();
+    if (!db) return null;
+
+    var result = await db.from("chamados_assistencia").update(fields).eq("id", id).select().single();
+    if (result.error) {
+      console.error("Falha ao atualizar chamado:", result.error);
+      return null;
+    }
+    return result.data;
+  }
+
+  async function deleteChamado(id) {
+    var db = client();
+    if (!db) return false;
+
+    var result = await db.from("chamados_assistencia").delete().eq("id", id);
+    if (result.error) {
+      console.error("Falha ao excluir chamado:", result.error);
+      return false;
+    }
+    return true;
+  }
+
   window.DB = {
     getVendas: getVendas,
     addVenda: addVenda,
@@ -166,6 +224,10 @@
     deleteVenda: deleteVenda,
     getProdutos: getProdutos,
     addProduto: addProduto,
-    deleteProduto: deleteProduto
+    deleteProduto: deleteProduto,
+    getChamados: getChamados,
+    addChamado: addChamado,
+    updateChamado: updateChamado,
+    deleteChamado: deleteChamado
   };
 })();
