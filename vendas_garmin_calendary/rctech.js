@@ -287,6 +287,78 @@
     fieldNumeroChamado.focus();
   });
 
+  // ---------- Motoboy: importar vários chamados de uma planilha ----------
+  var motoboyBtn = document.getElementById("motoboyBtn");
+  var motoboyFileInput = document.getElementById("motoboyFileInput");
+
+  // Lê o arquivo (xlsx/xls/csv), pega a primeira planilha e devolve o valor
+  // da coluna A de cada linha (um número de chamado por linha), sem pular
+  // nenhuma linha — se a planilha tiver um cabeçalho de texto na primeira
+  // linha, ele entra como chamado também e o usuário remove manualmente.
+  function lerNumerosDaPlanilha(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          var dados = new Uint8Array(e.target.result);
+          var workbook = XLSX.read(dados, { type: "array" });
+          var primeiraAba = workbook.Sheets[workbook.SheetNames[0]];
+          var linhas = XLSX.utils.sheet_to_json(primeiraAba, { header: 1, defval: "" });
+          var numeros = linhas
+            .map(function (linha) { return linha[0]; })
+            .map(function (valor) { return String(valor == null ? "" : valor).trim(); })
+            .filter(function (valor) { return valor.length > 0; });
+          resolve(numeros);
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = function () { reject(reader.error); };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  motoboyBtn.addEventListener("click", function () {
+    motoboyFileInput.click();
+  });
+
+  motoboyFileInput.addEventListener("change", async function () {
+    var file = motoboyFileInput.files && motoboyFileInput.files[0];
+    motoboyFileInput.value = "";
+    if (!file) return;
+
+    motoboyBtn.disabled = true;
+    motoboyBtn.textContent = "Importando...";
+
+    try {
+      var numeros = await lerNumerosDaPlanilha(file);
+      if (numeros.length === 0) {
+        showToast("Nenhum chamado encontrado na planilha.");
+        return;
+      }
+
+      var adicionados = 0;
+      for (var i = 0; i < numeros.length; i++) {
+        var inserted = await DB.addChamado(numeros[i]);
+        if (inserted) {
+          chamados.push(inserted);
+          adicionados++;
+        }
+      }
+
+      renderAll();
+      showToast(adicionados === numeros.length
+        ? adicionados + (adicionados === 1 ? " chamado importado." : " chamados importados.")
+        : adicionados + " de " + numeros.length + " chamados importados.");
+    } catch (err) {
+      console.error("Falha ao importar planilha:", err);
+      showToast("Não foi possível ler a planilha. Verifique o formato do arquivo.");
+    } finally {
+      motoboyBtn.disabled = false;
+      motoboyBtn.textContent = "Motoboy";
+    }
+  });
+
   // ---------- Confirmação de remoção ----------
   var confirmModalOverlay = document.getElementById("confirmModalOverlay");
   var confirmModalText = document.getElementById("confirmModalText");

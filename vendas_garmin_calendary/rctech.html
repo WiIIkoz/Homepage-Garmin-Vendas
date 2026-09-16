@@ -60,7 +60,10 @@
     <form class="rctech-add-form" id="chamadoForm">
       <input type="text" id="fieldNumeroChamado" placeholder="Número do chamado (ex: 99981231)" autocomplete="off">
       <button type="submit" class="btn btn-primary" id="addChamadoBtn" disabled>Adicionar chamado</button>
+      <button type="button" class="btn btn-outline" id="motoboyBtn" title="Importar vários chamados de uma planilha Excel">Motoboy</button>
+      <input type="file" id="motoboyFileInput" accept=".xlsx,.xls,.csv" style="display:none;">
     </form>
+    <p class="field-hint" id="motoboyHint">"Motoboy" importa vários chamados de uma vez a partir de uma planilha (lê a coluna A, uma linha por chamado).</p>
   </section>
 
   <div class="rctech-tabs" id="rctechTabs">
@@ -193,6 +196,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="supabase-config.js"></script>
 <script src="supabase-client.js"></script>
 <script src="db.js"></script>
